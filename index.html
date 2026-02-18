@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Nuuksion tulipaikat</title>
+<title>Nuuksion tulipaikat & palvelut</title>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -9,33 +9,34 @@
 <style>
   body { margin: 0; padding: 0; }
   #map { width: 100%; height: 100vh; }
-  .fire-icon { font-size: 24px; }
-  .leaflet-popup-content { font-family: sans-serif; }
-  .leaflet-popup-content h3 { margin: 0 0 5px 0; font-size: 14px; }
-  .leaflet-popup-content p { margin: 0 0 8px 0; font-size: 12px; color: #555; }
-  .leaflet-popup-content .btn-row { display: flex; gap: 6px; flex-wrap: wrap; }
-  .leaflet-popup-content a.nav-link {
+  .marker-icon { font-size: 22px; line-height: 1; }
+  .leaflet-popup-content { font-family: -apple-system, sans-serif; max-width: 220px; }
+  .leaflet-popup-content h3 { margin: 0 0 4px 0; font-size: 14px; }
+  .leaflet-popup-content p { margin: 0 0 8px 0; font-size: 12px; color: #555; line-height: 1.4; }
+  .leaflet-popup-content .btn-row { display: flex; gap: 5px; flex-wrap: wrap; }
+  .leaflet-popup-content a.btn {
     display: inline-block;
-    background: #4285f4;
     color: white;
-    padding: 6px 10px;
+    padding: 5px 9px;
     border-radius: 4px;
     text-decoration: none;
     font-size: 11px;
     font-weight: bold;
   }
-  .leaflet-popup-content a.nav-link:hover { background: #3367d6; }
-  .leaflet-popup-content a.info-link {
-    display: inline-block;
-    background: #34a853;
-    color: white;
-    padding: 6px 10px;
-    border-radius: 4px;
-    text-decoration: none;
-    font-size: 11px;
-    font-weight: bold;
+  .btn-nav { background: #4285f4; }
+  .btn-nav:hover { background: #3367d6; }
+  .btn-info { background: #34a853; }
+  .btn-info:hover { background: #2d8f47; }
+  .legend {
+    background: white;
+    padding: 10px 14px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,.3);
+    font-family: -apple-system, sans-serif;
+    font-size: 12px;
+    line-height: 1.8;
   }
-  .leaflet-popup-content a.info-link:hover { background: #2d8f47; }
+  .legend b { display: block; margin-bottom: 4px; }
 </style>
 </head>
 <body>
@@ -44,90 +45,83 @@
 const map = L.map('map').setView([60.305, 24.51], 13);
 
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '© OpenStreetMap contributors',
+  attribution: '© OpenStreetMap',
   maxZoom: 18
 }).addTo(map);
 
-const fireIcon = L.divIcon({
-  html: '🔥',
-  className: 'fire-icon',
-  iconSize: [24, 24],
-  iconAnchor: [12, 12]
-});
+function icon(emoji) {
+  return L.divIcon({ html: emoji, className: 'marker-icon', iconSize: [22, 22], iconAnchor: [11, 11] });
+}
 
-const places = [
-  {
-    name: "Haukanholma",
-    lat: 60.2983, lng: 24.5105,
-    desc: "Tulipaikka, keittokatos, telttailualue, käymälä. Suosituin paikka.",
-    url: "https://naturaviva.fi/fi_FI/tulipaikat-nuuksion-kansallispuistossa/haukanholman-tulipaikka"
-  },
-  {
-    name: "Mustalampi",
-    lat: 60.2948, lng: 24.5148,
-    desc: "Kaksi keittokatosta, käymälät, telttailualueet, tavallinen tulipaikka itäpuolella.",
-    url: "https://naturaviva.fi/fi_FI/tulipaikat-nuuksion-kansallispuistossa/mustalammen-tulipaikat"
-  },
-  {
-    name: "Holma-Saarijärvi",
-    lat: 60.2910, lng: 24.4968,
-    desc: "Tulipaikat itä- ja länsipuolella. Itäinen saaressa (silta) + laavu. Käymälät, telttailu.",
-    url: "https://naturaviva.fi/fi_FI/tulipaikat-nuuksion-kansallispuistossa/saarilammen-tulipaikka"
-  },
-  {
-    name: "Iso-Holma",
-    lat: 60.3015, lng: 24.4920,
-    desc: "Kaksi tulipaikkaa ~200m päässä. Telttailualueet, käymälä.",
-    url: "https://naturaviva.fi/fi_FI/tulipaikat-nuuksion-kansallispuistossa/iso-holman-tulipaikat"
-  },
-  {
-    name: "Urja",
-    lat: 60.2845, lng: 24.5940,
-    desc: "Tulipaikka + telttailualue Urja-järven rannalla, käymälä.",
-    url: "https://naturaviva.fi/fi_FI/tulipaikat-nuuksion-kansallispuistossa/urjan-tulipaikka"
-  },
-  {
-    name: "Vääräjärvi",
-    lat: 60.2960, lng: 24.6210,
-    desc: "Tulipaikka + telttailualue, käymälä.",
-    url: "https://naturaviva.fi/fi_FI/vaarajarven-tulipaikka"
-  },
-  {
-    name: "Kattila",
-    lat: 60.3175, lng: 24.4990,
-    desc: "Tulipaikka, keittokatos, käymälä, jätekatos. Varauskota, -tupa, 2 saunaa. Hiidenkirnu!",
-    url: "https://naturaviva.fi/fi_FI/tulipaikat-nuuksion-kansallispuistossa/kattilan-tulipaikka"
-  },
-  {
-    name: "Kattilajärvi",
-    lat: 60.2870, lng: 24.5350,
-    desc: "Tulipaikka, keittokatos, uimaranta + laituri, kaivo. Telttailualue.",
-    url: "https://naturaviva.fi/fi_FI/tulipaikat-nuuksion-kansallispuistossa/kattilajarven-tulipaikka"
-  },
-  {
-    name: "Koivu (Salmi)",
-    lat: 60.3635, lng: 24.5145,
-    desc: "Tulipaikka, telttailualue, ulkoilumaja, uimaranta. Salmen ulkoilualue.",
-    url: null
-  },
-  {
-    name: "Kanaholma (Salmi)",
-    lat: 60.3638, lng: 24.5100,
-    desc: "Keittokatos järven rannalla, käymälä.",
-    url: null
-  }
+function popup(emoji, name, desc, lat, lng, url) {
+  const gmaps = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=walking`;
+  const infoBtn = url ? `<a class="btn btn-info" href="${url}" target="_blank">ℹ️ Info</a>` : '';
+  return `<h3>${emoji} ${name}</h3><p>${desc}</p><div class="btn-row"><a class="btn btn-nav" href="${gmaps}" target="_blank">📍 Navigate</a>${infoBtn}</div>`;
+}
+
+// 🔥 Fireplaces
+const fires = [
+  { name:"Haukanholma", lat:60.2983, lng:24.5105, desc:"Keittokatos, tulipaikka, telttailualue, käymälä. Suosituin!", url:"https://naturaviva.fi/fi_FI/tulipaikat-nuuksion-kansallispuistossa/haukanholman-tulipaikka" },
+  { name:"Mustalampi", lat:60.2948, lng:24.5148, desc:"2 keittokatosta, käymälät, telttailualueet. Kelluvat turvelautat!", url:"https://naturaviva.fi/fi_FI/tulipaikat-nuuksion-kansallispuistossa/mustalammen-tulipaikat" },
+  { name:"Holma-Saarijärvi", lat:60.2910, lng:24.4968, desc:"Itä- ja länsipuolella. Itäinen saaressa + laavu.", url:"https://naturaviva.fi/fi_FI/tulipaikat-nuuksion-kansallispuistossa/saarilammen-tulipaikka" },
+  { name:"Iso-Holma", lat:60.3015, lng:24.4920, desc:"2 tulipaikkaa ~200m päässä. Telttailu, käymälä.", url:"https://naturaviva.fi/fi_FI/tulipaikat-nuuksion-kansallispuistossa/iso-holman-tulipaikat" },
+  { name:"Urja", lat:60.2845, lng:24.5940, desc:"Tulipaikka + telttailu Urja-järven rannalla.", url:"https://naturaviva.fi/fi_FI/tulipaikat-nuuksion-kansallispuistossa/urjan-tulipaikka" },
+  { name:"Vääräjärvi", lat:60.2960, lng:24.6210, desc:"Tulipaikka + telttailu, käymälä.", url:"https://naturaviva.fi/fi_FI/vaarajarven-tulipaikka" },
+  { name:"Kattila", lat:60.3175, lng:24.4990, desc:"Keittokatos, käymälä, varauskota, -tupa, 2 saunaa. Hiidenkirnu!", url:"https://naturaviva.fi/fi_FI/tulipaikat-nuuksion-kansallispuistossa/kattilan-tulipaikka" },
+  { name:"Kattilajärvi", lat:60.2870, lng:24.5350, desc:"Keittokatos, uimaranta + laituri, kaivo. Telttailu.", url:"https://naturaviva.fi/fi_FI/tulipaikat-nuuksion-kansallispuistossa/kattilajarven-tulipaikka" },
+  { name:"Koivu (Salmi)", lat:60.3635, lng:24.5145, desc:"Tulipaikka, ulkoilumaja, uimaranta.", url:null },
+  { name:"Kanaholma (Salmi)", lat:60.3638, lng:24.5100, desc:"Keittokatos järven rannalla.", url:null },
 ];
 
-places.forEach(p => {
-  const gmapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lng}&travelmode=walking`;
-  const infoBtn = p.url ? `<a class="info-link" href="${p.url}" target="_blank">ℹ️ Info</a>` : '';
-  L.marker([p.lat, p.lng], {icon: fireIcon})
-    .addTo(map)
-    .bindPopup(`<h3>🔥 ${p.name}</h3><p>${p.desc}</p><div class="btn-row"><a class="nav-link" href="${gmapsUrl}" target="_blank">📍 Navigate</a>${infoBtn}</div>`);
-});
+// 🅿️ Parking
+const parking = [
+  { name:"Haukkalampi P", lat:60.2995, lng:24.5070, desc:"Pääparkkipaikka. Haukkalammentie 32, Espoo. Usein täynnä viikonloppuisin!" },
+  { name:"Kattila P", lat:60.3190, lng:24.4945, desc:"Kattilan parkkipaikka. Hyvä vaihtoehto Haukkalaammelle." },
+  { name:"Haltia P", lat:60.2935, lng:24.5380, desc:"Suomen luontokeskus Haltia. Nuuksiontie 84, Espoo." },
+  { name:"Högbacka P", lat:60.3075, lng:24.5470, desc:"Högbackan parkkipaikka. Högbackantie, Espoo." },
+  { name:"Salmi P", lat:60.3660, lng:24.5180, desc:"Salmentie 100B, Vihti. Pohjoinen sisäänkäynti." },
+  { name:"Siikaniemi P", lat:60.2860, lng:24.4780, desc:"Kolmoislammenranta, Espoo. Ei talvikunnossapitoa." },
+  { name:"Valklammentie P", lat:60.3250, lng:24.4800, desc:"Valklammentie, Vihti. Klassarinkierroksen lähtöpiste." },
+];
 
-const bounds = L.latLngBounds(places.map(p => [p.lat, p.lng]));
-map.fitBounds(bounds.pad(0.1));
+// 🚻 Toilets (dry toilets at main locations)
+const toilets = [
+  { name:"WC Haukkalampi", lat:60.2988, lng:24.5095, desc:"Kuivakäymälä + vesipiste" },
+  { name:"WC Mustalampi itä", lat:60.2952, lng:24.5160, desc:"Kuivakäymälä" },
+  { name:"WC Mustalampi länsi", lat:60.2945, lng:24.5130, desc:"Kuivakäymälä" },
+  { name:"WC Holma-Saarijärvi", lat:60.2915, lng:24.4975, desc:"Kuivakäymälä" },
+  { name:"WC Iso-Holma", lat:60.3020, lng:24.4925, desc:"Kuivakäymälä" },
+  { name:"WC Urja", lat:60.2850, lng:24.5945, desc:"Kuivakäymälä" },
+  { name:"WC Vääräjärvi", lat:60.2965, lng:24.6215, desc:"Kuivakäymälä" },
+  { name:"WC Kattila", lat:60.3180, lng:24.4995, desc:"Kuivakäymälä + jätekatos" },
+  { name:"WC Haltia", lat:60.2938, lng:24.5375, desc:"Sisä-WC luontokeskuksessa" },
+];
+
+// ⭐ Points of interest
+const pois = [
+  { name:"Suomen luontokeskus Haltia", lat:60.2938, lng:24.5385, desc:"Näyttely, kahvila, kauppa, WC. Nuuksiontie 84.", url:"https://www.haltia.com" },
+  { name:"Hiidenkirnu", lat:60.3170, lng:24.4980, desc:"Nuuksion tunnetuin nähtävyys. Jääkauden muovaama hiidenkirnu.", url:null },
+  { name:"Natura Viva Haukanpesä", lat:60.2990, lng:24.5115, desc:"Vuokrakanootteja, kahvila, opastus. Haukkalammen rannalla.", url:"https://naturaviva.fi" },
+];
+
+// Add markers
+fires.forEach(p => L.marker([p.lat, p.lng], {icon: icon('🔥')}).addTo(map).bindPopup(popup('🔥', p.name, p.desc, p.lat, p.lng, p.url)));
+parking.forEach(p => L.marker([p.lat, p.lng], {icon: icon('🅿️')}).addTo(map).bindPopup(popup('🅿️', p.name, p.desc, p.lat, p.lng, null)));
+toilets.forEach(p => L.marker([p.lat, p.lng], {icon: icon('🚻')}).addTo(map).bindPopup(popup('🚻', p.name, p.desc, p.lat, p.lng, null)));
+pois.forEach(p => L.marker([p.lat, p.lng], {icon: icon('⭐')}).addTo(map).bindPopup(popup('⭐', p.name, p.desc, p.lat, p.lng, p.url)));
+
+// Legend
+const legend = L.control({position: 'bottomright'});
+legend.onAdd = function() {
+  const div = L.DomUtil.create('div', 'legend');
+  div.innerHTML = '<b>Nuuksion palvelut</b>🔥 Tulipaikka<br>🅿️ Parkkipaikka<br>🚻 Käymälä<br>⭐ Nähtävyys';
+  return div;
+};
+legend.addTo(map);
+
+// Fit bounds
+const all = [...fires, ...parking, ...toilets, ...pois];
+map.fitBounds(L.latLngBounds(all.map(p => [p.lat, p.lng])).pad(0.05));
 </script>
 </body>
 </html>
