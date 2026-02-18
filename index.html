@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Nuuksion tulipaikat</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+  body { margin: 0; padding: 0; }
+  #map { width: 100%; height: 100vh; }
+  .fire-icon { font-size: 24px; }
+  .leaflet-popup-content { font-family: sans-serif; }
+  .leaflet-popup-content h3 { margin: 0 0 5px 0; font-size: 14px; }
+  .leaflet-popup-content p { margin: 0; font-size: 12px; color: #555; }
+</style>
+</head>
+<body>
+<div id="map"></div>
+<script>
+const map = L.map('map').setView([60.305, 24.51], 13);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© OpenStreetMap contributors',
+  maxZoom: 18
+}).addTo(map);
+
+const fireIcon = L.divIcon({
+  html: '🔥',
+  className: 'fire-icon',
+  iconSize: [24, 24],
+  iconAnchor: [12, 12]
+});
+
+const places = [
+  {
+    name: "Haukkalampi",
+    lat: 60.2983, lng: 24.5105,
+    desc: "Tulipaikka, keittokatos, telttailualue, käymälä. Suosituin paikka."
+  },
+  {
+    name: "Mustalampi",
+    lat: 60.2948, lng: 24.5148,
+    desc: "Kaksi keittokatosta, käymälät, telttailualueet, tavallinen tulipaikka itäpuolella."
+  },
+  {
+    name: "Holma-Saarijärvi",
+    lat: 60.2910, lng: 24.4968,
+    desc: "Tulipaikat itä- ja länsipuolella. Itäinen saaressa (silta) + laavu. Käymälät, telttailu."
+  },
+  {
+    name: "Iso-Holma",
+    lat: 60.3015, lng: 24.4920,
+    desc: "Kaksi tulipaikkaa ~200m päässä. Telttailualueet, käymälä."
+  },
+  {
+    name: "Urja",
+    lat: 60.2845, lng: 24.5940,
+    desc: "Tulipaikka + telttailualue Urja-järven rannalla, käymälä."
+  },
+  {
+    name: "Vääräjärvi",
+    lat: 60.2960, lng: 24.6210,
+    desc: "Tulipaikka + telttailualue, käymälä."
+  },
+  {
+    name: "Kattila",
+    lat: 60.3175, lng: 24.4990,
+    desc: "Tulipaikka, keittokatos, käymälä, jätekatos. Varauskota, -tupa, 2 saunaa. Hiidenkirnu!"
+  },
+  {
+    name: "Koivu (Salmi)",
+    lat: 60.3635, lng: 24.5145,
+    desc: "Tulipaikka, telttailualue, ulkoilumaja, uimaranta. Salmen ulkoilualue."
+  },
+  {
+    name: "Kanaholma (Salmi)",
+    lat: 60.3638, lng: 24.5100,
+    desc: "Keittokatos järven rannalla, käymälä."
+  },
+  {
+    name: "Kattilajärvi",
+    lat: 60.2870, lng: 24.5350,
+    desc: "Tulipaikka, keittokatos, uimaranta + laituri, kaivo. Telttailualue."
+  }
+];
+
+places.forEach(p => {
+  L.marker([p.lat, p.lng], {icon: fireIcon})
+    .addTo(map)
+    .bindPopup(`<h3>🔥 ${p.name}</h3><p>${p.desc}</p>`);
+});
+
+// Fit bounds
+const bounds = L.latLngBounds(places.map(p => [p.lat, p.lng]));
+map.fitBounds(bounds.pad(0.1));
+</script>
+</body>
+</html>
