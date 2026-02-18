@@ -13,17 +13,29 @@
   .leaflet-popup-content { font-family: sans-serif; }
   .leaflet-popup-content h3 { margin: 0 0 5px 0; font-size: 14px; }
   .leaflet-popup-content p { margin: 0 0 8px 0; font-size: 12px; color: #555; }
+  .leaflet-popup-content .btn-row { display: flex; gap: 6px; flex-wrap: wrap; }
   .leaflet-popup-content a.nav-link {
     display: inline-block;
     background: #4285f4;
     color: white;
-    padding: 6px 12px;
+    padding: 6px 10px;
     border-radius: 4px;
     text-decoration: none;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: bold;
   }
   .leaflet-popup-content a.nav-link:hover { background: #3367d6; }
+  .leaflet-popup-content a.info-link {
+    display: inline-block;
+    background: #34a853;
+    color: white;
+    padding: 6px 10px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 11px;
+    font-weight: bold;
+  }
+  .leaflet-popup-content a.info-link:hover { background: #2d8f47; }
 </style>
 </head>
 <body>
@@ -45,62 +57,73 @@ const fireIcon = L.divIcon({
 
 const places = [
   {
-    name: "Haukkalampi",
+    name: "Haukanholma",
     lat: 60.2983, lng: 24.5105,
-    desc: "Tulipaikka, keittokatos, telttailualue, käymälä. Suosituin paikka."
+    desc: "Tulipaikka, keittokatos, telttailualue, käymälä. Suosituin paikka.",
+    url: "https://naturaviva.fi/fi_FI/tulipaikat-nuuksion-kansallispuistossa/haukanholman-tulipaikka"
   },
   {
     name: "Mustalampi",
     lat: 60.2948, lng: 24.5148,
-    desc: "Kaksi keittokatosta, käymälät, telttailualueet, tavallinen tulipaikka itäpuolella."
+    desc: "Kaksi keittokatosta, käymälät, telttailualueet, tavallinen tulipaikka itäpuolella.",
+    url: "https://naturaviva.fi/fi_FI/tulipaikat-nuuksion-kansallispuistossa/mustalammen-tulipaikat"
   },
   {
     name: "Holma-Saarijärvi",
     lat: 60.2910, lng: 24.4968,
-    desc: "Tulipaikat itä- ja länsipuolella. Itäinen saaressa (silta) + laavu. Käymälät, telttailu."
+    desc: "Tulipaikat itä- ja länsipuolella. Itäinen saaressa (silta) + laavu. Käymälät, telttailu.",
+    url: "https://naturaviva.fi/fi_FI/tulipaikat-nuuksion-kansallispuistossa/saarilammen-tulipaikka"
   },
   {
     name: "Iso-Holma",
     lat: 60.3015, lng: 24.4920,
-    desc: "Kaksi tulipaikkaa ~200m päässä. Telttailualueet, käymälä."
+    desc: "Kaksi tulipaikkaa ~200m päässä. Telttailualueet, käymälä.",
+    url: "https://naturaviva.fi/fi_FI/tulipaikat-nuuksion-kansallispuistossa/iso-holman-tulipaikat"
   },
   {
     name: "Urja",
     lat: 60.2845, lng: 24.5940,
-    desc: "Tulipaikka + telttailualue Urja-järven rannalla, käymälä."
+    desc: "Tulipaikka + telttailualue Urja-järven rannalla, käymälä.",
+    url: "https://naturaviva.fi/fi_FI/tulipaikat-nuuksion-kansallispuistossa/urjan-tulipaikka"
   },
   {
     name: "Vääräjärvi",
     lat: 60.2960, lng: 24.6210,
-    desc: "Tulipaikka + telttailualue, käymälä."
+    desc: "Tulipaikka + telttailualue, käymälä.",
+    url: "https://naturaviva.fi/fi_FI/vaarajarven-tulipaikka"
   },
   {
     name: "Kattila",
     lat: 60.3175, lng: 24.4990,
-    desc: "Tulipaikka, keittokatos, käymälä, jätekatos. Varauskota, -tupa, 2 saunaa. Hiidenkirnu!"
-  },
-  {
-    name: "Koivu (Salmi)",
-    lat: 60.3635, lng: 24.5145,
-    desc: "Tulipaikka, telttailualue, ulkoilumaja, uimaranta. Salmen ulkoilualue."
-  },
-  {
-    name: "Kanaholma (Salmi)",
-    lat: 60.3638, lng: 24.5100,
-    desc: "Keittokatos järven rannalla, käymälä."
+    desc: "Tulipaikka, keittokatos, käymälä, jätekatos. Varauskota, -tupa, 2 saunaa. Hiidenkirnu!",
+    url: "https://naturaviva.fi/fi_FI/tulipaikat-nuuksion-kansallispuistossa/kattilan-tulipaikka"
   },
   {
     name: "Kattilajärvi",
     lat: 60.2870, lng: 24.5350,
-    desc: "Tulipaikka, keittokatos, uimaranta + laituri, kaivo. Telttailualue."
+    desc: "Tulipaikka, keittokatos, uimaranta + laituri, kaivo. Telttailualue.",
+    url: "https://naturaviva.fi/fi_FI/tulipaikat-nuuksion-kansallispuistossa/kattilajarven-tulipaikka"
+  },
+  {
+    name: "Koivu (Salmi)",
+    lat: 60.3635, lng: 24.5145,
+    desc: "Tulipaikka, telttailualue, ulkoilumaja, uimaranta. Salmen ulkoilualue.",
+    url: null
+  },
+  {
+    name: "Kanaholma (Salmi)",
+    lat: 60.3638, lng: 24.5100,
+    desc: "Keittokatos järven rannalla, käymälä.",
+    url: null
   }
 ];
 
 places.forEach(p => {
   const gmapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lng}&travelmode=walking`;
+  const infoBtn = p.url ? `<a class="info-link" href="${p.url}" target="_blank">ℹ️ Info</a>` : '';
   L.marker([p.lat, p.lng], {icon: fireIcon})
     .addTo(map)
-    .bindPopup(`<h3>🔥 ${p.name}</h3><p>${p.desc}</p><a class="nav-link" href="${gmapsUrl}" target="_blank">📍 Navigate</a>`);
+    .bindPopup(`<h3>🔥 ${p.name}</h3><p>${p.desc}</p><div class="btn-row"><a class="nav-link" href="${gmapsUrl}" target="_blank">📍 Navigate</a>${infoBtn}</div>`);
 });
 
 const bounds = L.latLngBounds(places.map(p => [p.lat, p.lng]));
